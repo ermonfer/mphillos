@@ -6,19 +6,36 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/10 14:01:04 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/12 12:49:28 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/07/12 18:49:13 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int ft_check_args(int argc, char *argv[])
+int ft_parse_args(int argc, char *argv[], t_args *args)
 {
-	if (!(argc == 4 || argc == 5))
+	int **args_arr;
+	int	i;
+
+	if (!(argc == 5 || argc == 6))
 		return (1);
-	while (*argv != NULL)
-		ft_str_to_valid_arg(*argv);
-	return ;
+	args_arr = (int *[5]){&args->n_philos, &args->time_to_die, &args->time_to_eat,
+			&args->time_to_sleep, &args->meals_required};	
+	i = 0;
+	while (i < 4)	
+	{
+		*args_arr[i] = ft_str_to_valid_arg(argv[i + 1]);
+		if (*args_arr[i] < 0)
+			exit (1);
+		i++;
+	}
+	*args_arr[i] = -1;
+	if (argc != 6)
+		return (0);
+	*args_arr[i] = ft_str_to_valid_arg(argv[i + 1]);
+	if (*args_arr[i] < 0)
+		exit (1);
+	return (0);
 }
 
 int ft_str_to_valid_arg(char *str)
