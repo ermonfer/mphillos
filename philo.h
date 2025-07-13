@@ -6,7 +6,7 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/10 15:30:06 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/12 22:25:26 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/07/13 12:53:40 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,16 +40,17 @@ typedef struct s_philo
 	pthread_mutex_t lock_meal;
 	long            last_meal_time;
 	int             meals_eaten;
-	t_args			*cfg;
+	int				has_finished;
+	t_args			*cfg; //posiblemente la mueva. compound literal anonimo para argumentos a la rutina
 } t_philo;
 
-typedef struct s_arbitrator
+typedef struct s_supervisor
 {
 	long	start_time;
 	int		n_philos_finished;
 	t_args	*cfg;
 	t_philo	*philos;
-} t_arbitrator;
+} t_supervisor;
 
 int ft_parse_args(int argc, char *argv[], t_args *args);
 #endif
