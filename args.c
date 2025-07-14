@@ -6,7 +6,7 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/10 14:01:04 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/12 18:49:13 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/07/14 17:52:26 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ int ft_parse_args(int argc, char *argv[], t_args *args)
 	*args_arr[i] = ft_str_to_valid_arg(argv[i + 1]);
 	if (*args_arr[i] < 0)
 		exit (1);
+	args->simulation_ok = 0;
 	return (0);
 }
 
