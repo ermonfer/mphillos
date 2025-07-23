@@ -6,7 +6,7 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/19 21:02:14 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/23 15:59:51 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/07/23 19:32:38 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void	*ft_philo_routine(void *args)
 	pthread_mutex_unlock(&self->shared->lock_start);
 	if (ft_wait_start_time(self->shared->start_time) == -1)
 		return (NULL);
-	self->deadline = ft_get_time_ms() + self->shared->time_to_die;
+	self->deadline = ft_get_time_ms() + self->shared->args.time_to_die;
 	while (1)
 	{
 		timestamp = ft_get_time_ms() - self->shared->start_time;
@@ -39,7 +39,7 @@ void	*ft_philo_routine(void *args)
 		pthread_mutex_lock(&self->shared->lock_print);
 		printf("%ld %d is sleeping", timestamp, self->id);
 		pthread_mutex_unlock(&self->shared->lock_print);
-		usleep(self->shared->time_to_sleep);
+		usleep(self->shared->args.time_to_sleep);
 	}
 }
 
@@ -71,14 +71,14 @@ static int	ft_eating(t_philo *philo)
 	pthread_mutex_lock(&philo->shared->lock_print);
 	printf("%ld %d is eating", now, philo->id);
 	pthread_mutex_unlock(&philo->shared->lock_print);
-	usleep(philo->shared->time_to_eat);
-	if (++philo->meals_eaten == philo->shared->meals_required)
+	usleep(philo->shared->args.time_to_eat);
+	if (++philo->meals_eaten == philo->shared->args.meals_required)
 	{
 		ft_mutex_store_l(&(long){PHILO_MEALS_DONE},
 			&philo->deadline, &philo->lock_meal);
 		return (0);
 	}
-	now = ft_get_time_ms() + philo->shared->time_to_die;
+	now = ft_get_time_ms() + philo->shared->args.time_to_die;
 	ft_mutex_store_l(&now, &philo->deadline, &philo->lock_meal);
 	return (0);
 }

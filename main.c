@@ -5,14 +5,14 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/10 14:01:04 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/20 18:46:51 by fmontero         ###   ########.fr       */
+/*   Created: 2025/07/10 14:01:04 by fmontERR_ARGSo    #+#    #+#             */
+/*   Updated: 2025/07/23 20:15:13 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static int	ft_parse_args(int argc, char *argv[], t_shared *args);
+static int	ft_parse_args(int argc, char *argv[], t_args *args);
 static int	ft_str_to_valid_arg(char *str);
 
 int	main(int argc, char *argv[])
@@ -20,23 +20,23 @@ int	main(int argc, char *argv[])
 	t_supervisor	sv;
 	int				i;
 
-	if (ft_parse_args(argc, argv, &sv.shared) != 0)
+	if (ft_parse_args(argc, argv, &sv.shared.args) != 0)
 		return (ERR_ARGS);
 	ft_init_simulation(&sv);
 	i = -1;
-	while (++i < sv.shared.n_philos)
+	while (++i < sv.shared.args.n_philos)
 		pthread_join(sv.philos[i].tid, NULL);
-	ft_cleanup_mutex(&sv, sv.shared.n_philos);
+	ft_cleanup_mutex(&sv, sv.shared.args.n_philos);
 	return (0);
 }
 
-static int	ft_parse_args(int argc, char *argv[], t_shared *args)
+static int	ft_parse_args(int argc, char *argv[], t_args *args)
 {
 	int	**args_arr;
 	int	i;
 
 	if (!(argc == 5 || argc == 6))
-		return (write_return("Incorrect number of arguments\n", ERR_ARGS));
+		return (ft_write_return("Incorrect number of arguments\n", ERR_ARGS));
 	args_arr = (int *[5]){&args->n_philos, &args->time_to_die,
 		&args->time_to_eat, &args->time_to_sleep, &args->meals_required};
 	i = -1;
@@ -44,14 +44,16 @@ static int	ft_parse_args(int argc, char *argv[], t_shared *args)
 	{
 		*args_arr[i] = ft_str_to_valid_arg(argv[i + 1]);
 		if (*args_arr[i] < 0)
-			return (write_return("Incorrect format of argument\n", ERR_ARGS));
+			return (ft_write_return("Incorrect format of argument\n", ERR_ARGS));
 	}
-	*args_arr[i] = -1;
 	if (argc != 6)
-		return (0);
-	*args_arr[i] = ft_str_to_valid_arg(argv[i + 1]);
-	if (*args_arr[i] < 0)
-		return (write_return("Incorrect format of argument\n", ERR_ARGS));
+		*args_arr[i] = -1;
+	else
+	{
+		*args_arr[i] = ft_str_to_valid_arg(argv[i + 1]);
+		if (*args_arr[i] < 0)
+			return (ft_write_return("Incorrect format of argument\n", ERR_ARGS));
+	}
 	return (0);
 }
 
@@ -65,7 +67,7 @@ static int	ft_str_to_valid_arg(char *str)
 	if (*str == '+')
 		str++;
 	if (*str == '\0')
-		return (-1);
+		return (ERR_ARGS);
 	while (*str == '0')
 		str++;
 	len = 1;
@@ -73,15 +75,15 @@ static int	ft_str_to_valid_arg(char *str)
 	while (str[len] >= '0' && str[len] <= '9')
 	{
 		if (len > 6)
-			return (-1);
+			return (ERR_ARGS);
 		nmb = nmb * 10 + (str[len++] - '0');
 	}
 	if (str[len] != '\0')
-		return (-1);
+		return (ERR_ARGS);
 	return (nmb);
 }
 
-int	write_return(char *msg, int rvalue)
+int	ft_write_return(char *msg, int rvalue)
 {
 	size_t	i;
 

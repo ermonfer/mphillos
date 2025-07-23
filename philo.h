@@ -6,7 +6,7 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/10 15:30:06 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/21 13:36:57 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/07/23 19:54:41 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,9 @@
 
 # define ERR_ARGS 			-1
 # define ERR_MUTEX			-2
-# define ERR_MALLOC			-2
-# define ERR_LAUNCH_PHILO	-3
-# define ERR_TIME			-4
+# define ERR_INIT_PHILO		-3
+# define ERR_LAUNCH_PHILO	-4
+# define ERR_TIME			-5
 # define PHILO_MEALS_DONE	-1
 # define EATING				-2
 # define PHILO_DIED			1
@@ -35,13 +35,18 @@
 
 // Structs
 
-typedef struct s_shared
+typedef struct s_args
 {
 	int					n_philos;
 	int					time_to_die;
 	int					time_to_eat;
 	int					time_to_sleep;
 	int					meals_required;
+}	t_args;
+
+typedef struct s_shared
+{
+	t_args				args;
 	pthread_mutex_t		lock_start;
 	long				start_time;
 	pthread_mutex_t		lock_print;
@@ -76,5 +81,5 @@ void	ft_declare_death(t_philo *philo);
 int		ft_wait_start_time(long start_time);
 long	ft_get_time_ms(void);
 void	ft_mutex_store_l(long *rd, long*wr, pthread_mutex_t *lock);
-int		write_return(char *msg, int rvalue);
+int		ft_write_return(char *msg, int rvalue);
 #endif

@@ -6,7 +6,7 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/10 13:19:41 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/21 13:40:27 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/07/23 20:04:27 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,21 +21,22 @@ int	ft_init_simulation(t_supervisor *sv)
 {
 	sv->n_philos_finished = 0;
 	if (pthread_mutex_init(&sv->shared.lock_print, NULL) != 0)
-		return (ERR_MUTEX);
+		ft_write_return("Mutex init error\n", ERR_MUTEX);
 	if (pthread_mutex_init(&sv->shared.lock_start, NULL) != 0)
 	{
 		pthread_mutex_destroy(&sv->shared.lock_print);
-		return (ERR_MUTEX);
+		ft_write_return("Mutex init error\n", ERR_MUTEX);
 	}
 	if (ft_init_philos(sv) != 0)
-		return (ERR_MALLOC);
+		return (ERR_INIT_PHILO);
 	pthread_mutex_lock(&sv->shared.lock_start);
-	if (ft_launch_philos(sv) == -1)
+	if (ft_launch_philos(sv) != 0)
 	{
-		ft_cleanup_mutex(sv, sv->shared.n_philos);
+		ft_cleanup_mutex(sv, sv->shared.args.n_philos);
 		return (ERR_LAUNCH_PHILO);
 	}
-	sv->shared.start_time = ft_get_time_ms() + 60 + sv->shared.n_philos * 2;
+	sv->shared.start_time = ft_get_time_ms()
+		+ 60 + sv->shared.args.n_philos * 2;
 	pthread_mutex_unlock(&sv->shared.lock_start);
 	ft_wait_start_time(sv->shared.start_time);
 	ft_sv_watch(sv);
@@ -46,16 +47,16 @@ static int	ft_init_philos(t_supervisor *sv)
 {
 	int	i;
 
-	sv->philos = malloc(sizeof(t_philo) * sv->shared.n_philos);
+	sv->philos = malloc(sizeof(t_philo) * sv->shared.args.n_philos);
 	if (sv->philos == NULL)
-		return (ERR_MALLOC);
+		ft_write_return("Malloc error\n", ERR_INIT_PHILO);
 	i = -1;
-	while (++i < sv->shared.n_philos)
+	while (++i < sv->shared.args.n_philos)
 	{
 		if (ft_init_philo(&sv->philos[i], &sv->shared, i, sv->philos) != 0)
 		{
-			ft_cleanup_mutex(sv, ERR_MUTEX);
-			return (1);
+			ft_cleanup_mutex(sv, i);
+			ft_write_return("Mutex init error\n", ERR_MUTEX);
 		}
 	}
 	return (0);
@@ -73,7 +74,7 @@ static int	ft_init_philo(t_philo *philo, t_shared *shared, int i, t_philo *all)
 	philo->id = i + 1;
 	philo->shared = shared;
 	philo->meals_eaten = 0;
-	philo->next_fork = &all[(i + 1) % shared->n_philos].fork;
+	philo->next_fork = &all[(i + 1) % shared->args.n_philos].fork;
 	philo->deadline = 0;
 	philo->has_finished = 0;
 	return (0);
@@ -84,22 +85,20 @@ static int	ft_launch_philos(t_supervisor *sv)
 	int	i;
 
 	i = -1;
-	while (++i < sv->shared.n_philos)
+	while (++i < sv->shared.args.n_philos)
 	{
 		if (pthread_create(&sv->philos[i].tid, NULL,
 				ft_philo_routine, &sv->philos[i]) != 0)
 			break ;
 	}
-	if (i < sv->shared.n_philos)
+	if (i < sv->shared.args.n_philos)
 	{
 		sv->shared.start_time = -1;
 		pthread_mutex_unlock(&sv->shared.lock_start);
 		while (--i > -1)
 			pthread_join(sv->philos[i].tid, NULL);
-		return (-1);
+		ft_write_return("Pthread create error\n", ERR_LAUNCH_PHILO);
 	}
-	if (i < sv->shared.n_philos)
-		return (ERR_LAUNCH_PHILO);
 	return (0);
 }
 
@@ -108,10 +107,10 @@ static void	*ft_sv_watch(t_supervisor *sv)
 	int		i;
 	long	deadline;
 
-	while (sv->n_philos_finished != sv->shared.n_philos)
+	while (sv->n_philos_finished != sv->shared.args.n_philos)
 	{
 		i = -1;
-		while (++i < sv->shared.n_philos)
+		while (++i < sv->shared.args.n_philos)
 		{
 			if (sv->philos[i].has_finished == 1)
 				continue ;
