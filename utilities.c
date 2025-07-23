@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/19 21:25:19 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/19 21:30:29 by fmontero         ###   ########.fr       */
+/*   Created: 2025/07/20 13:56:35 by fmontero          #+#    #+#             */
+/*   Updated: 2025/07/21 13:56:14 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,18 @@ void	ft_cleanup_mutex(t_supervisor *sv, int n)
 	free(sv->philos);
 }
 
+long	ft_get_time_ms(void)
+{
+	struct timeval	tv;
+
+	gettimeofday(&tv, NULL);
+	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
+}
+
 void	ft_declare_death(t_philo *philo)
 {
 	pthread_mutex_lock(&philo->shared->lock_print);
-	printf("%ld %d died\n", philo->meal_deadline);
+	printf("%ld %d died\n", philo->deadline, philo->id);
 	philo->shared->philo_died = 1;
 	pthread_mutex_unlock(&philo->shared->lock_print);
 }
@@ -37,10 +45,10 @@ int	ft_wait_start_time(long start_time)
 	long	now;
 
 	if (start_time == -1)
-		return (-1);
+		return (ERR_LAUNCH_PHILO);
 	while (1)
 	{
-		now = get_time_ms();
+		now = ft_get_time_ms();
 		if (now >= start_time)
 			break ;
 		if (start_time - now > 2)
@@ -51,10 +59,9 @@ int	ft_wait_start_time(long start_time)
 	return (0);
 }
 
-long	ft_get_time_ms(void)
+void	ft_mutex_store_l(long *rd, long*wr, pthread_mutex_t *lock)
 {
-	struct timeval	tv;
-
-	gettimeofday(&tv, NULL);
-	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
+	pthread_mutex_lock(lock);
+	*wr = *rd;
+	pthread_mutex_unlock(lock);
 }

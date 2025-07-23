@@ -6,7 +6,7 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/10 15:30:06 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/19 21:46:15 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/07/21 13:36:57 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,18 @@
 # include <pthread.h>
 # include <stdint.h>
 # include <sys/time.h>
+
+// Macros
+
+# define ERR_ARGS 			-1
+# define ERR_MUTEX			-2
+# define ERR_MALLOC			-2
+# define ERR_LAUNCH_PHILO	-3
+# define ERR_TIME			-4
+# define PHILO_MEALS_DONE	-1
+# define EATING				-2
+# define PHILO_DIED			1
+# define MEALS_DONE			0
 
 // Structs
 
@@ -43,7 +55,7 @@ typedef struct s_philo
 	pthread_mutex_t	fork;
 	pthread_mutex_t	*next_fork;
 	pthread_mutex_t	lock_meal;
-	long			meal_deadline;
+	long			deadline;
 	int				meals_eaten;
 	int				has_finished;
 	t_shared		*shared;
@@ -63,4 +75,6 @@ void	ft_cleanup_mutex(t_supervisor *sv, int n);
 void	ft_declare_death(t_philo *philo);
 int		ft_wait_start_time(long start_time);
 long	ft_get_time_ms(void);
+void	ft_mutex_store_l(long *rd, long*wr, pthread_mutex_t *lock);
+int		write_return(char *msg, int rvalue);
 #endif
