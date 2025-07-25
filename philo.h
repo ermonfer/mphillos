@@ -6,7 +6,7 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/10 15:30:06 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/24 19:08:42 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/07/25 18:12:59 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,9 @@
 # define PHILO_H
 
 // System libraries
-# include <stdlib.h>
-# include <stdbool.h>
-# include <stdio.h>
 # include <unistd.h>
+# include <stdlib.h>
+# include <stdio.h>
 # include <pthread.h>
 # include <stdint.h>
 # include <sys/time.h>

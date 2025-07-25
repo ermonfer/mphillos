@@ -6,7 +6,7 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/10 13:19:41 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/24 18:15:04 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/07/25 18:20:06 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,12 @@
 static int	ft_init_philo(t_philo *philo, t_shared *sh, int i, t_philo *all);
 static int	ft_init_philos(t_supervisor *sv);
 static int	ft_launch_philos(t_supervisor *sv);
-static void	*ft_sv_watch(t_supervisor *sv);
+static void	ft_sv_watch(t_supervisor *sv);
 
 int	ft_init_simulation(t_supervisor *sv)
 {
 	sv->n_philos_finished = 0;
+	sv->shared.philo_died = 0;
 	if (pthread_mutex_init(&sv->shared.lock_print, NULL) != 0)
 		ft_wr_ret("Mutex init error\n", ERR_MUTEX);
 	if (pthread_mutex_init(&sv->shared.lock_start, NULL) != 0)
@@ -102,7 +103,7 @@ static int	ft_launch_philos(t_supervisor *sv)
 	return (0);
 }
 
-static void	*ft_sv_watch(t_supervisor *sv)
+static void	ft_sv_watch(t_supervisor *sv)
 {
 	int		i;
 	long	deadline;
@@ -126,5 +127,4 @@ static void	*ft_sv_watch(t_supervisor *sv)
 				ft_declare_death(&sv->philos[i]);
 		}
 	}
-	return (NULL);
 }
