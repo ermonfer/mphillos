@@ -6,19 +6,21 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/19 21:02:14 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/23 19:32:38 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/07/25 13:00:05 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static void		ft_grab_forks(t_philo *philo);
-static int		ft_eating(t_philo *philo);
+static int	ft_thinking(t_philo *philo);
+static int	ft_eating(t_philo *philo);
+static int	ft_report_action(t_philo *philo, char *action);
+static void	ft_select_forks(t_philo *ph,
+				pthread_mutex_t **fst, pthread_mutex_t **snd);
 
 void	*ft_philo_routine(void *args)
 {
 	t_philo		*self;
-	long		timestamp;
 
 	self = args;
 	pthread_mutex_lock(&self->shared->lock_start);
@@ -28,57 +30,102 @@ void	*ft_philo_routine(void *args)
 	self->deadline = ft_get_time_ms() + self->shared->args.time_to_die;
 	while (1)
 	{
-		timestamp = ft_get_time_ms() - self->shared->start_time;
-		pthread_mutex_lock(&self->shared->lock_print);
-		printf("%ld %d is thinking", timestamp, self->id);
-		pthread_mutex_unlock(&self->shared->lock_print);
-		ft_grab_forks(self);
-		if (ft_eating(self) != 0)
+		if (ft_thinking(self) != 0)
 			return (NULL);
-		timestamp = ft_get_time_ms() - self->shared->start_time;
-		pthread_mutex_lock(&self->shared->lock_print);
-		printf("%ld %d is sleeping", timestamp, self->id);
-		pthread_mutex_unlock(&self->shared->lock_print);
+		if (ft_eating(self) != 0)
+		{
+			pthread_mutex_unlock(&self->fork);
+			pthread_mutex_unlock(self->next_fork);
+			return (NULL);
+		}
+		pthread_mutex_unlock(&self->fork);
+		pthread_mutex_unlock(self->next_fork);
+		if (ft_report_action(self, "is sleeping") != 0)
+			return (NULL);
 		usleep(self->shared->args.time_to_sleep);
 	}
 }
 
-static void	ft_grab_forks(t_philo *philo)
+static int	ft_thinking(t_philo *philo)
 {
-	if (philo->id % 2 == 0)
+	pthread_mutex_t	*first;
+	pthread_mutex_t	*second;
+
+	if (ft_report_action(philo, "is thinking") != 0)
+		return (PHILO_DIED);
+	ft_select_forks(philo, &first, &second);
+	pthread_mutex_lock(first);
+	if (ft_report_action(philo, "has taken a fork") != 0)
 	{
-		pthread_mutex_lock(&philo->fork);
-		pthread_mutex_lock(philo->next_fork);
+		pthread_mutex_unlock(first);
+		return (PHILO_DIED);
 	}
-	else
+	pthread_mutex_lock(second);
+	if (ft_report_action(philo, "has taken a fork") != 0)
 	{
-		pthread_mutex_lock(philo->next_fork);
-		pthread_mutex_lock(&philo->fork);
+		pthread_mutex_unlock(first);
+		pthread_mutex_unlock(second);
+		return (PHILO_DIED);
 	}
+	return (0);
 }
 
 static int	ft_eating(t_philo *philo)
 {
-	long	now;
+	long	time;
 
-	now = ft_get_time_ms();
-	if (philo->deadline < now)
+	time = ft_get_time_ms();
+	if (philo->deadline < time)
 	{
 		ft_declare_death(philo);
-		return (PHILO_DIED);
+		ft_mutex_store_l(&(long){HAS_FINISHED}, &philo->deadline,
+			&philo->lock_deadline);
+		return (HAS_FINISHED);
 	}
-	ft_mutex_store_l(&(long){EATING}, &philo->deadline, &philo->lock_meal);
-	pthread_mutex_lock(&philo->shared->lock_print);
-	printf("%ld %d is eating", now, philo->id);
-	pthread_mutex_unlock(&philo->shared->lock_print);
+	ft_mutex_store_l(&(long){EATING}, &philo->deadline, &philo->lock_deadline);
+	if (ft_report_action(philo, "is eating") != 0)
+		return (HAS_FINISHED);
 	usleep(philo->shared->args.time_to_eat);
 	if (++philo->meals_eaten == philo->shared->args.meals_required)
 	{
-		ft_mutex_store_l(&(long){PHILO_MEALS_DONE},
-			&philo->deadline, &philo->lock_meal);
-		return (0);
+		ft_mutex_store_l(&(long){HAS_FINISHED}, &philo->deadline,
+			&philo->lock_deadline);
+		return (HAS_FINISHED);
 	}
-	now = ft_get_time_ms() + philo->shared->args.time_to_die;
-	ft_mutex_store_l(&now, &philo->deadline, &philo->lock_meal);
+	time = ft_get_time_ms() + philo->shared->args.time_to_die;
+	ft_mutex_store_l(&time, &philo->deadline, &philo->lock_deadline);
 	return (0);
+}
+
+static int	ft_report_action(t_philo *philo, char *action)
+{
+	long	timestamp;
+
+	timestamp = ft_get_time_ms() - philo->shared->start_time;
+	pthread_mutex_lock(&philo->shared->lock_print);
+	if (philo->shared->philo_died == 1)
+	{
+		pthread_mutex_unlock(&philo->shared->lock_print);
+		ft_mutex_store_l(&(long){HAS_FINISHED}, &philo->deadline,
+			&philo->lock_deadline);
+		return (PHILO_DIED);
+	}
+	printf("%ld %d %s\n", timestamp, philo->id, action);
+	pthread_mutex_unlock(&philo->shared->lock_print);
+	return (0);
+}
+
+static void	ft_select_forks(t_philo *ph,
+	pthread_mutex_t **fst, pthread_mutex_t **snd)
+{
+	if (ph->id % 2 == 0)
+	{
+		*fst = &ph->fork;
+		*snd = ph->next_fork;
+	}
+	else
+	{
+		*fst = ph->next_fork;
+		*snd = &ph->fork;
+	}
 }

@@ -6,7 +6,7 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/10 15:30:06 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/23 19:54:41 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/07/24 19:08:42 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 // System libraries
 # include <stdlib.h>
+# include <stdbool.h>
 # include <stdio.h>
 # include <unistd.h>
 # include <pthread.h>
@@ -28,7 +29,7 @@
 # define ERR_INIT_PHILO		-3
 # define ERR_LAUNCH_PHILO	-4
 # define ERR_TIME			-5
-# define PHILO_MEALS_DONE	-1
+# define HAS_FINISHED		-1
 # define EATING				-2
 # define PHILO_DIED			1
 # define MEALS_DONE			0
@@ -59,7 +60,7 @@ typedef struct s_philo
 	pthread_t		tid;
 	pthread_mutex_t	fork;
 	pthread_mutex_t	*next_fork;
-	pthread_mutex_t	lock_meal;
+	pthread_mutex_t	lock_deadline;
 	long			deadline;
 	int				meals_eaten;
 	int				has_finished;
@@ -81,5 +82,5 @@ void	ft_declare_death(t_philo *philo);
 int		ft_wait_start_time(long start_time);
 long	ft_get_time_ms(void);
 void	ft_mutex_store_l(long *rd, long*wr, pthread_mutex_t *lock);
-int		ft_write_return(char *msg, int rvalue);
+int		ft_wr_ret(char *msg, int rvalue);
 #endif
