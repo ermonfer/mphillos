@@ -6,7 +6,7 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/10 13:19:41 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/25 18:20:06 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/07/25 18:50:40 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ static int	ft_init_philos(t_supervisor *sv)
 			ft_cleanup_mutex(sv, i);
 			ft_wr_ret("Mutex init error\n", ERR_MUTEX);
 		}
+		sv->philos[i].deadline = EATING;
 	}
 	return (0);
 }

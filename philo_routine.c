@@ -6,7 +6,7 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/19 21:02:14 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/25 18:33:41 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/07/25 19:03:42 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ void	*ft_philo_routine(void *args)
 	pthread_mutex_unlock(&self->shared->lock_start);
 	if (ft_wait_start_time(self->shared->start_time) != 0)
 		return (NULL);
-	self->deadline = ft_get_time_ms() + self->shared->args.time_to_die;
+	self->deadline = self->shared->start_time + self->shared->args.time_to_die;
 	while (1)
 	{
 		if (ft_thinking(self) != 0)
@@ -42,7 +42,7 @@ void	*ft_philo_routine(void *args)
 		pthread_mutex_unlock(self->next_fork);
 		if (ft_report_action(self, "is sleeping") != 0)
 			return (NULL);
-		usleep(self->shared->args.time_to_sleep);
+		usleep(self->shared->args.time_to_sleep * 1000);
 	}
 }
 
@@ -82,7 +82,7 @@ static int	ft_eating(t_philo *philo)
 	ft_mutex_store_l(&(long){EATING}, &philo->deadline, &philo->lock_deadline);
 	if (ft_report_action(philo, "is eating") != 0)
 		return (HAS_FINISHED);
-	usleep(philo->shared->args.time_to_eat);
+	usleep(philo->shared->args.time_to_eat * 1000);
 	if (++philo->meals_eaten == philo->shared->args.meals_required)
 	{
 		ft_mutex_store_l(&(long){HAS_FINISHED}, &philo->deadline,
