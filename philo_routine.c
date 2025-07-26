@@ -6,7 +6,7 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/19 21:02:14 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/25 19:03:42 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/07/26 17:15:24 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,9 @@ void	*ft_philo_routine(void *args)
 	pthread_mutex_unlock(&self->shared->lock_start);
 	if (ft_wait_start_time(self->shared->start_time) != 0)
 		return (NULL);
-	self->deadline = self->shared->start_time + self->shared->args.time_to_die;
+	ft_mutex_store_l(&(long){self->shared->start_time
+		+ self->shared->args.time_to_die}, &self->deadline,
+		&self->lock_deadline);
 	while (1)
 	{
 		if (ft_thinking(self) != 0)
@@ -72,14 +74,19 @@ static int	ft_thinking(t_philo *philo)
 
 static int	ft_eating(t_philo *philo)
 {
-	if (ft_get_time_ms() > philo->deadline)
+	long	deadline;
+
+	ft_mutex_store_l(&philo->deadline, &deadline, &philo->lock_deadline);
+	if (ft_get_time_ms() >= deadline)
 	{
 		ft_declare_death(philo);
 		ft_mutex_store_l(&(long){HAS_FINISHED}, &philo->deadline,
 			&philo->lock_deadline);
 		return (HAS_FINISHED);
 	}
-	ft_mutex_store_l(&(long){EATING}, &philo->deadline, &philo->lock_deadline);
+	ft_mutex_store_l(&(long){ft_get_time_ms()
+		+ philo->shared->args.time_to_die},
+		&philo->deadline, &philo->lock_deadline);
 	if (ft_report_action(philo, "is eating") != 0)
 		return (HAS_FINISHED);
 	usleep(philo->shared->args.time_to_eat * 1000);
@@ -89,9 +96,6 @@ static int	ft_eating(t_philo *philo)
 			&philo->lock_deadline);
 		return (HAS_FINISHED);
 	}
-	ft_mutex_store_l(&(long){ft_get_time_ms()
-		+ philo->shared->args.time_to_die},
-		&philo->deadline, &philo->lock_deadline);
 	return (0);
 }
 
