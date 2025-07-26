@@ -6,7 +6,7 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/10 13:19:41 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/26 14:33:36 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/07/26 19:10:15 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,7 @@ static void	ft_sv_watch(t_supervisor *sv)
 					sv->n_philos_finished += ++sv->philos[i].has_finished;
 				continue ;
 			}
-			if (ft_get_time_ms() >= deadline)
+			if (ft_get_time_ms() > deadline)
 				ft_declare_death(&sv->philos[i]);
 		}
 	}

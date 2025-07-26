@@ -6,7 +6,7 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/19 21:02:14 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/26 17:15:24 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/07/26 19:18:13 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,8 @@ static int	ft_thinking(t_philo *philo)
 	pthread_mutex_t	*first;
 	pthread_mutex_t	*second;
 
+	if (philo->id % 2 == 1)
+		usleep(1000);
 	if (ft_report_action(philo, "is thinking") != 0)
 		return (PHILO_DIED);
 	ft_select_forks(philo, &first, &second);
@@ -77,7 +79,7 @@ static int	ft_eating(t_philo *philo)
 	long	deadline;
 
 	ft_mutex_store_l(&philo->deadline, &deadline, &philo->lock_deadline);
-	if (ft_get_time_ms() >= deadline)
+	if (ft_get_time_ms() > deadline)
 	{
 		ft_declare_death(philo);
 		ft_mutex_store_l(&(long){HAS_FINISHED}, &philo->deadline,
