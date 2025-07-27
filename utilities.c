@@ -6,7 +6,7 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/20 13:56:35 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/26 16:06:43 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/07/27 18:09:46 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,15 +34,13 @@ long	ft_get_time_ms(void)
 
 void	ft_declare_death(t_philo *philo)
 {
-	long	timeofdeath;
+	long	timestamp;
 
-	pthread_mutex_lock(&philo->lock_deadline);
-	timeofdeath = philo->deadline - philo->shared->start_time;
-	pthread_mutex_unlock(&philo->lock_deadline);
+	timestamp = ft_get_time_ms() - philo->shared->start_time;
 	pthread_mutex_lock(&philo->shared->lock_print);
 	if (philo->shared->philo_died == 0)
 	{
-		printf("%ld %d died\n", timeofdeath, philo->id);
+		printf("%ld %d died\n", timestamp, philo->id);
 		philo->shared->philo_died = 1;
 	}
 	pthread_mutex_unlock(&philo->shared->lock_print);

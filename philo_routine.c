@@ -6,7 +6,7 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/19 21:02:14 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/26 19:18:13 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/07/27 18:35:28 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,31 +20,30 @@ static void	ft_select_forks(t_philo *ph,
 
 void	*ft_philo_routine(void *args)
 {
-	t_philo		*self;
+	t_philo		*ph;
 
-	self = args;
-	pthread_mutex_lock(&self->shared->lock_start);
-	pthread_mutex_unlock(&self->shared->lock_start);
-	if (ft_wait_start_time(self->shared->start_time) != 0)
+	ph = args;
+	pthread_mutex_lock(&ph->shared->lock_start);
+	pthread_mutex_unlock(&ph->shared->lock_start);
+	if (ft_wait_start_time(ph->shared->start_time) != 0)
 		return (NULL);
-	ft_mutex_store_l(&(long){self->shared->start_time
-		+ self->shared->args.time_to_die}, &self->deadline,
-		&self->lock_deadline);
+	ft_mutex_store_l(&(long){ph->shared->start_time
+		+ ph->shared->args.time_to_die}, &ph->deadline, &ph->lock_deadline);
 	while (1)
 	{
-		if (ft_thinking(self) != 0)
+		if (ft_thinking(ph) != 0)
 			return (NULL);
-		if (ft_eating(self) != 0)
+		if (ft_eating(ph) != 0)
 		{
-			pthread_mutex_unlock(&self->fork);
-			pthread_mutex_unlock(self->next_fork);
+			pthread_mutex_unlock(&ph->fork);
+			pthread_mutex_unlock(ph->next_fork);
 			return (NULL);
 		}
-		pthread_mutex_unlock(&self->fork);
-		pthread_mutex_unlock(self->next_fork);
-		if (ft_report_action(self, "is sleeping") != 0)
+		pthread_mutex_unlock(&ph->fork);
+		pthread_mutex_unlock(ph->next_fork);
+		if (ft_report_action(ph, "is sleeping") != 0)
 			return (NULL);
-		usleep(self->shared->args.time_to_sleep * 1000);
+		usleep(ph->shared->args.time_to_sleep * 1000);
 	}
 }
 
