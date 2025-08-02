@@ -1,4 +1,4 @@
-NAME_MAN := philo
+NAME := philo
 
 CC := cc
 CFLAGS := -Wall -Wextra -Werror 
@@ -7,23 +7,23 @@ SRC_MAN := main.c \
 	philo_routine.c \
 	utilities.c
 
-OBJ_MAN := $(SRC_MAN:.c=.o)
+OBJ := $(SRC_MAN:.c=.o)
 
 HEADER := philo.h
 
-all: $(NAME_MAN)
+all: $(NAME)
 
-$(NAME_MAN): $(OBJ_MAN)
-	$(CC) $(CFLAGS) $(OBJ_MAN) -o $(NAME_MAN)
+$(NAME): $(OBJ)
+	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
 
 %.o: %.c
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJ_MAN) $(OBJ_BONUS)
+	rm -f $(OBJ)
 
 fclean: clean
-	rm -f $(NAME_MAN) $(NAME_BONUS)
+	rm -f $(NAME)
 
 re: fclean all
 
