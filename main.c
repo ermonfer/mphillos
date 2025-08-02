@@ -6,7 +6,7 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 13:14:32 by fmontero          #+#    #+#             */
-/*   Updated: 2025/08/01 13:14:38 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/08/02 18:16:05 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@ int	main(int argc, char *argv[])
 
 	if (ft_parse_args(argc, argv, &sv.shared.args) != 0)
 		return (ERR_ARGS);
+	if (sv.shared.args.meals_required == 0)
+		return (0);
 	if (sv.shared.args.n_philos == 1)
 	{
 		write(1, "0 1 has taken a fork\n", 21);
@@ -81,7 +83,7 @@ static int	ft_str_to_valid_arg(char *str)
 	nmb = 0;
 	while (str[len] >= '0' && str[len] <= '9')
 	{
-		if (len > 6)
+		if (len > 5)
 			return (ERR_ARGS);
 		nmb = nmb * 10 + (str[len++] - '0');
 	}

@@ -6,7 +6,7 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/19 21:02:14 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/27 18:35:28 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/08/02 17:55:36 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,8 @@ static int	ft_eating(t_philo *philo)
 	if (ft_report_action(philo, "is eating") != 0)
 		return (HAS_FINISHED);
 	usleep(philo->shared->args.time_to_eat * 1000);
-	if (++philo->meals_eaten == philo->shared->args.meals_required)
+	if (philo->shared->args.meals_required >= 0
+		&& ++philo->meals_eaten == philo->shared->args.meals_required)
 	{
 		ft_mutex_store_l(&(long){HAS_FINISHED}, &philo->deadline,
 			&philo->lock_deadline);
