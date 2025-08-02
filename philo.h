@@ -6,7 +6,7 @@
 /*   By: fmontero <fmontero@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/10 15:30:06 by fmontero          #+#    #+#             */
-/*   Updated: 2025/07/26 14:34:28 by fmontero         ###   ########.fr       */
+/*   Updated: 2025/08/01 13:38:01 by fmontero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@
 # define HAS_FINISHED		-1
 # define NOT_STARTED_PHILO	-2
 # define PHILO_DIED			1
-# define MEALS_DONE			0
 
 // Structs
 typedef struct s_args
